@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Eating Challenge</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: #87CEEB;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #FFE4E6 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, #E0F2F1 2px, transparent 2px);
+            background-size: 50px 50px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Pixel-style floating emojis */
+        .floating-emoji {
+            position: absolute;
+            font-size: 2.5em;
+            animation: float 4s ease-in-out infinite;
+            pointer-events: none;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        .emoji-1 { top: 10%; left: 10%; animation-delay: 0s; }
+        .emoji-2 { top: 20%; right: 15%; animation-delay: 1s; }
+        .emoji-3 { top: 70%; left: 5%; animation-delay: 2s; }
+        .emoji-4 { top: 80%; right: 10%; animation-delay: 3s; }
+        .emoji-5 { top: 45%; left: 3%; animation-delay: 2.5s; }
+        .emoji-6 { top: 35%; right: 8%; animation-delay: 1.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .game-container {
+            background: #FFF;
+            border: 6px solid #000;
+            border-radius: 0;
+            box-shadow: 8px 8px 0px #000;
+            padding: 30px;
+            max-width: 950px;
+            width: 100%;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: #FFD700;
+            border: 3px solid #000;
+            z-index: -1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .title {
+            font-size: 2em;
+            color: #FF4500;
+            text-shadow: 3px 3px 0px #000;
+            margin-bottom: 10px;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.8; }
+        }
+        
+        .subtitle {
+            color: #333;
+            font-size: 0.5em;
+            line-height: 1.5;
+        }
+        
+        .game-area {
+            display: none;
+        }
+        
+        .game-area.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .start-screen {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .welcome-text {
+            font-size: 0.6em;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.8;
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            background: #32CD32;
+            color: #FFF;
+            border: 4px solid #000;
+            padding: 20px 25px;
+            font-family: inherit;
+            font-size: 0.4em;
+            font-weight: normal;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 4px 4px 0px #000;
+            text-shadow: 1px 1px 0px #000;
+            line-height: 1.4;
+        }
+        
+        .mode-btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        .mode-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+        
+        .question-area {
+            background: #FFEB3B;
+            border: 4px solid #000;
+            padding: 25px;
+            margin: 20px 0;
+            position: relative;
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        .question-area::before {
+            content: '❓';
+            position: absolute;
+            top: -15px;
+            left: 15px;
+            background: #FF4500;
+            padding: 8px;
+            border: 3px solid #000;
+            font-size: 1.2em;
+        }
+        
+        .question {
+            font-size: 0.5em;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            text-align: center;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .option-btn {
+            background: #2196F3;
+            color: #FFF;
+            border: 4px solid #000;
+            padding: 15px 20px;
+            font-family: inherit;
+            font-size: 0.4em;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 4px 4px 0px #000;
+            text-shadow: 1px 1px 0px #000;
+            line-height: 1.4;
+        }
+        
+        .option-btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+        }
+        
+        .option-btn.correct {
+            background: #4CAF50;
+            animation: correctShake 0.5s ease;
+        }
+        
+        .option-btn.incorrect {
+            background: #F44336;
+            animation: incorrectShake 0.5s ease;
+        }
+        
+        @keyframes correctShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+        
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+            20%, 40%, 60%, 80% { transform: translateX(2px); }
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border: 4px solid #000;
+            font-size: 0.4em;
+            text-align: center;
+            display: none;
+            box-shadow: 4px 4px 0px #000;
+            line-height: 1.5;
+        }
+        
+        .feedback.correct {
+            background: #C8E6C9;
+            color: #2E7D32;
+        }
+        
+        .feedback.incorrect {
+            background: #FFCDD2;
+            color: #C62828;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #9C27B0;
+            color: #FFF;
+            padding: 20px;
+            border: 4px solid #000;
+            margin: 20px 0;
+            box-shadow: 4px 4px 0px #000;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.2em;
+            display: block;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        .stat-label {
+            font-size: 0.3em;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            background: #FF5722;
+            color: #FFF;
+            border: 4px solid #000;
+            padding: 12px 20px;
+            font-family: inherit;
+            font-size: 0.4em;
+            cursor: pointer;
+            margin: 0 8px;
+            transition: all 0.1s ease;
+            box-shadow: 4px 4px 0px #000;
+            text-shadow: 1px 1px 0px #000;
+        }
+        
+        .btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        .btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+        
+        .final-screen {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .final-score {
+            font-size: 2em;
+            color: #FF4500;
+            text-shadow: 3px 3px 0px #000;
+            margin: 20px 0;
+        }
+        
+        .performance-msg {
+            font-size: 0.5em;
+            color: #333;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        
+        .sentence-builder {
+            background: #E1F5FE;
+            border: 4px solid #000;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 4px 4px 0px #000;
+        }
+        
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .word-card {
+            background: #673AB7;
+            color: #FFF;
+            padding: 8px 12px;
+            border: 3px solid #000;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            font-size: 0.4em;
+            box-shadow: 3px 3px 0px #000;
+            text-shadow: 1px 1px 0px #000;
+        }
+        
+        .word-card:hover {
+            transform: translate(1px, 1px);
+            box-shadow: 2px 2px 0px #000;
+        }
+        
+        .word-card.used {
+            background: #757575;
+            cursor: not-allowed;
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #000;
+        }
+        
+        .sentence-area {
+            background: #FFF;
+            border: 3px dashed #000;
+            padding: 20px;
+            min-height: 60px;
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .placed-word {
+            background: #4CAF50;
+            color: #FFF;
+            padding: 6px 10px;
+            border: 2px solid #000;
+            cursor: pointer;
+            font-size: 0.4em;
+            box-shadow: 2px 2px 0px #000;
+            text-shadow: 1px 1px 0px #000;
+        }
+
+        .placed-word:hover {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px #000;
+        }
+
+        /* Translation exercise styles */
+        .translation-input {
+            background: #FFF;
+            border: 4px solid #000;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 0.4em;
+            width: 100%;
+            margin: 10px 0;
+            box-shadow: inset 2px 2px 0px #CCC;
+        }
+
+        .translation-input:focus {
+            outline: none;
+            box-shadow: inset 2px 2px 0px #000;
+        }
+
+        .chinese-text {
+            background: #FFF3E0;
+            border: 3px solid #000;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 0.5em;
+            color: #333;
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        /* Match exercise styles */
+        .matching-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .match-column {
+            background: #E8F5E8;
+            border: 3px solid #000;
+            padding: 15px;
+            box-shadow: 3px 3px 0px #000;
+        }
+
+        .match-item {
+            background: #FFF;
+            border: 2px solid #000;
+            padding: 10px;
+            margin: 8px 0;
+            cursor: pointer;
+            font-size: 0.4em;
+            transition: all 0.1s ease;
+            box-shadow: 2px 2px 0px #000;
+            line-height: 1.4;
+        }
+
+        .match-item:hover {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px #000;
+        }
+
+        .match-item.selected {
+            background: #FFEB3B;
+            border-color: #FF5722;
+        }
+
+        .match-item.matched {
+            background: #C8E6C9;
+            cursor: not-allowed;
+        }
+
+        /* Power-up effects */
+        .power-up {
+            position: fixed;
+            font-size: 2em;
+            pointer-events: none;
+            z-index: 1000;
+            animation: powerUpFloat 2s ease-out forwards;
+        }
+
+        @keyframes powerUpFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .title {
+                font-size: 1.2em;
+            }
+            
+            .mode-selector {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .floating-emoji {
+                display: none;
+            }
+
+            .matching-area {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating emoji decorations -->
+    <div class="floating-emoji emoji-1">🍕</div>
+    <div class="floating-emoji emoji-2">🌭</div>
+    <div class="floating-emoji emoji-3">🍦</div>
+    <div class="floating-emoji emoji-4">🌶️</div>
+    <div class="floating-emoji emoji-5">🏆</div>
+    <div class="floating-emoji emoji-6">⚡</div>
+
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">🍔 SPEED EATING CHALLENGE 🏆</h1>
+            <p class="subtitle">BECOME THE ULTIMATE EATING CHAMPION!</p>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="game-area active">
+            <div class="start-screen">
+                <div class="welcome-text">SELECT YOUR CHALLENGE MODE!</div>
+                <div class="mode-selector">
+                    <button class="mode-btn" onclick="startGame('vocabulary')">
+                        📚<br>VOCABULARY<br>MASTER
+                    </button>
+                    <button class="mode-btn" onclick="startGame('grammar')">
+                        ⚡<br>GRAMMAR<br>BUILDER
+                    </button>
+                    <button class="mode-btn" onclick="startGame('reading')">
+                        📖<br>READING<br>CHAMPION
+                    </button>
+                    <button class="mode-btn" onclick="startGame('translation')">
+                        🌍<br>TRANSLATION<br>EXPERT
+                    </button>
+                    <button class="mode-btn" onclick="startGame('matching')">
+                        🎯<br>WORD<br>MATCHER
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="game-area">
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="score">0</span>
+                    <div class="stat-label">SCORE</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="question-num">1</span>
+                    <div class="stat-label">QUESTION</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="timer">45</span>
+                    <div class="stat-label">TIME</div>
+                </div>
+            </div>
+
+            <div class="question-area">
+                <div class="question" id="question-text"></div>
+                <div id="options-container" class="options"></div>
+                <div id="sentence-builder" class="sentence-builder" style="display: none;">
+                    <div class="word-bank" id="word-bank"></div>
+                    <div class="sentence-area" id="sentence-area">
+                        <span style="color: #666; font-style: italic;">CLICK WORDS TO BUILD SENTENCE...</span>
+                    </div>
+                </div>
+                <div id="translation-area" class="translation-area" style="display: none;">
+                    <div class="chinese-text" id="chinese-text"></div>
+                    <input type="text" class="translation-input" id="translation-input" placeholder="TYPE YOUR ENGLISH TRANSLATION HERE...">
+                </div>
+                <div id="matching-area" class="matching-area" style="display: none;">
+                    <div class="match-column" id="left-column">
+                        <h3 style="text-align: center; margin-bottom: 15px; font-size: 0.4em;">WORDS</h3>
+                    </div>
+                    <div class="match-column" id="right-column">
+                        <h3 style="text-align: center; margin-bottom: 15px; font-size: 0.4em;">MEANINGS</h3>
+                    </div>
+                </div>
+                <div id="feedback" class="feedback"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="checkAnswer()">CHECK ANSWER</button>
+                <button class="btn" onclick="nextQuestion()">NEXT</button>
+                <button class="btn" onclick="endGame()">FINISH</button>
+            </div>
+        </div>
+
+        <!-- Final Screen -->
+        <div id="final-screen" class="game-area">
+            <div class="final-screen">
+                <h2>🎉 GAME COMPLETE! 🎉</h2>
+                <div class="final-score" id="final-score">0</div>
+                <div class="performance-msg" id="performance-msg"></div>
+                <button class="btn" onclick="restartGame()">PLAY AGAIN</button>
+                <button class="btn" onclick="showStartScreen()">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let currentMode = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer = 45;
+        let timerInterval;
+        let questions = [];
+        let currentSentence = [];
+        let selectedMatches = [];
+
+        // Comprehensive question banks based on Student Book
+        const vocabularyQuestions = [
+            {
+                question: "What does 'competitive eating' mean?",
+                options: ["Cooking food fast", "Contestants eat as much as they can within a time limit", "Watching people eat", "Learning about food"],
+                correct: 1,
+                explanation: "Competitive eating is exactly what its name suggests - contestants eat as much as they can, usually within a time limit."
+            },
+            {
+                question: "Choose the correct meaning of 'contestants':",
+                options: ["People who watch competitions", "People who participate in competitions", "People who judge competitions", "People who organize competitions"],
+                correct: 1,
+                explanation: "Contestants are people who participate in eating competitions."
+            },
+            {
+                question: "What does 'various' mean in the context of eating competitions?",
+                options: ["Same types", "Different kinds", "One type only", "No types"],
+                correct: 1,
+                explanation: "Various means different kinds - eating competitions can involve various foods like pizza, pies, ice cream, chili peppers."
+            },
+            {
+                question: "What does 'time limit' mean?",
+                options: ["Unlimited time", "Only a short time allowed", "Long time", "No time restrictions"],
+                correct: 1,
+                explanation: "Time limit means only a short amount of time is allowed for the competition."
+            },
+            {
+                question: "What does 'exactly' mean in 'exactly what its name suggests'?",
+                options: ["Maybe", "Precisely", "Sometimes", "Never"],
+                correct: 1,
+                explanation: "'Exactly' means precisely - competitive eating is exactly (precisely) what its name suggests."
+            },
+            {
+                question: "What does 'prize' mean?",
+                options: ["Something you lose", "Something you win when successful", "Something you buy", "Something you throw away"],
+                correct: 1,
+                explanation: "A prize is something you win when you are successful in a competition."
+            },
+            {
+                question: "According to the legend, what does 'argue' mean?",
+                options: ["To agree completely", "To have a discussion with disagreement", "To stay quiet", "To run away"],
+                correct: 1,
+                explanation: "To argue means to have a discussion where people disagree with each other."
+            },
+            {
+                question: "What does 'immigrant' mean?",
+                options: ["Someone who stays in the same place", "Someone who moves to another country", "Someone who visits places", "Someone who never travels"],
+                correct: 1,
+                explanation: "An immigrant is someone who moves to live in another country permanently."
+            },
+            {
+                question: "What does 'work out' mean in 'worked out a way'?",
+                options: ["Exercise", "Find a solution", "Give up", "Make it harder"],
+                correct: 1,
+                explanation: "'Work out' means to find a solution or figure out how to solve a problem."
+            },
+            {
+                question: "What does 'tradition' mean?",
+                options: ["Something new", "Something people do every year", "Something forgotten", "Something impossible"],
+                correct: 1,
+                explanation: "A tradition is something that people do regularly every year, passed down over time."
+            },
+            {
+                question: "What does 'current champion' mean?",
+                options: ["Past winner", "Present winner", "Future winner", "Someone who lost"],
+                correct: 1,
+                explanation: "Current champion means the present or most recent winner of the competition."
+            },
+            {
+                question: "What does 'hold the world record' mean?",
+                options: ["Carry something heavy", "Have the best achievement ever", "Keep a secret", "Stop something"],
+                correct: 1,
+                explanation: "To hold the world record means to have achieved the best performance that has ever been recorded."
+            },
+            {
+                question: "What does 'doesn't look like' mean when describing Kobayashi?",
+                options: ["Appears to be", "Doesn't appear to be", "Definitely is", "Always is"],
+                correct: 1,
+                explanation: "'Doesn't look like' means doesn't appear to be - Kobayashi doesn't appear to be a typical eating champion."
+            },
+            {
+                question: "What does 'unhealthy' mean?",
+                options: ["Very good for health", "Not good for your body", "Delicious", "Expensive"],
+                correct: 1,
+                explanation: "Unhealthy means not good for your body or health."
+            },
+            {
+                question: "What does 'go hungry' mean?",
+                options: ["Eat too much", "Don't have enough food to eat", "Cook food", "Buy food"],
+                correct: 1,
+                explanation: "Go hungry means to not have enough food to eat."
+            }
+        ];
+
+        const grammarQuestions = [
+            {
+                question: "Build an SVO sentence: 'Contestants eat food'",
+                type: "sentence-builder",
+                words: ["Contestants", "eat", "food", "quickly", "much", "they", "can"],
+                correctSentence: ["Contestants", "eat", "food"],
+                explanation: "Contestants (Subject) + eat (Verb) + food (Object) - This is a basic SVO sentence structure."
+            },
+            {
+                question: "Build an SVO sentence using the pattern from Paragraph A:",
+                type: "sentence-builder",
+                words: ["Eating", "competitions", "can", "offer", "large", "prizes", "winners"],
+                correctSentence: ["Eating", "competitions", "can", "offer", "prizes"],
+                explanation: "Eating competitions (S) + can offer (V) + prizes (O)"
+            },
+            {
+                question: "Identify the correct SVO sentence:",
+                options: ["Eating competitions can offer large prizes", "Can offer eating competitions prizes", "Prizes eating competitions offer", "Offer competitions eating prizes"],
+                correct: 0,
+                explanation: "Eating competitions (S) + can offer (V) + large prizes (O) - This follows the SVO pattern."
+            },
+            {
+                question: "Complete: 'Joey Chestnut ___ an American'",
+                options: ["are", "is", "am", "be"],
+                correct: 1,
+                explanation: "Joey Chestnut (singular) uses 'is' - this is the linking verb 'be' + noun pattern."
+            },
+            {
+                question: "Which sentence uses the correct 'be + adjective' pattern?",
+                options: ["He smaller than Chestnut", "He is smaller than Chestnut", "He are smaller than Chestnut", "He be smaller than Chestnut"],
+                correct: 1,
+                explanation: "He (subject) + is (linking verb) + smaller (adjective) - this is the correct 'be + adjective' pattern."
+            },
+            {
+                question: "Build: 'They worked out a way'",
+                type: "sentence-builder",
+                words: ["They", "worked", "out", "a", "way", "to", "decide", "problem"],
+                correctSentence: ["They", "worked", "out", "a", "way"],
+                explanation: "They (S) + worked out (V) + a way (O)"
+            },
+            {
+                question: "Identify the subject in: 'James Mullen won the eating contest'",
+                options: ["won", "James Mullen", "the eating contest", "eating"],
+                correct: 1,
+                explanation: "James Mullen is the subject - he is the person performing the action."
+            },
+            {
+                question: "Identify the verb in: 'The contest started a tradition'",
+                options: ["The contest", "started", "a tradition", "tradition"],
+                correct: 1,
+                explanation: "'Started' is the verb - it shows the action that the subject performed."
+            },
+            {
+                question: "Complete: 'Kobayashi ___ from Japan'",
+                options: ["are", "is", "am", "be"],
+                correct: 1,
+                explanation: "Kobayashi (singular) + is (linking verb) + from Japan (prepositional phrase)"
+            },
+            {
+                question: "Which is the correct sentence order?",
+                options: ["Chestnut the current champion is", "Is Chestnut the current champion", "The current champion is Chestnut", "Champion the current is Chestnut"],
+                correct: 2,
+                explanation: "The current champion (subject) + is (linking verb) + Chestnut (noun) - correct linking verb pattern."
+            }
+        ];
+
+        const readingQuestions = [
+            {
+                question: "What are the basic elements mentioned for understanding an article?",
+                options: ["Only text", "Title, photos, subheadings, captions", "Just pictures", "Only the conclusion"],
+                correct: 1,
+                explanation: "Article elements include title, photos, subheadings, sidebar, captions, footnotes - these help you understand the article."
+            },
+            {
+                question: "Where is Nathan's Famous Hot Dog Contest held?",
+                options: ["Washington D.C.", "Coney Island, New York", "Chicago", "Los Angeles"],
+                correct: 1,
+                explanation: "According to the text, the contest is held in Coney Island, New York every July 4th."
+            },
+            {
+                question: "How many hot dogs did Joey Chestnut eat to set his world record?",
+                options: ["70", "72", "74", "76"],
+                correct: 2,
+                explanation: "Joey Chestnut holds the world record for eating 74 hot dogs in less than 10 minutes."
+            },
+            {
+                question: "According to the text, that's just over how many seconds per hot dog?",
+                options: ["6 seconds", "8 seconds", "10 seconds", "12 seconds"],
+                correct: 1,
+                explanation: "The text states 'That's just over 8 seconds per hot dog' for Joey Chestnut's record."
+            },
+            {
+                question: "Who was the Nathan's Contest champion for many years before?",
+                options: ["James Mullen", "Takeru Kobayashi", "Nathan's founder", "An Irish immigrant"],
+                correct: 1,
+                explanation: "For many years, the Nathan's Contest champion was Takeru Kobayashi from Japan."
+            },
+            {
+                question: "According to the legend, who won the first contest over 100 years ago?",
+                options: ["Joey Chestnut", "Takeru Kobayashi", "James Mullen", "Nathan himself"],
+                correct: 2,
+                explanation: "According to the legend, James Mullen, an Irish immigrant, won the first contest over 100 years ago."
+            },
+            {
+                question: "How is Kobayashi described compared to Chestnut?",
+                options: ["Bigger and stronger", "Smaller and lighter", "Taller and faster", "Same size"],
+                correct: 1,
+                explanation: "The text says 'He is smaller and lighter than Chestnut, and doesn't look like an eating champion.'"
+            },
+            {
+                question: "When did Kobayashi first win the Nathan's contest?",
+                options: ["2000", "2001", "2002", "2003"],
+                correct: 1,
+                explanation: "Kobayashi first won the event in 2001 when he was 23 years old."
+            },
+            {
+                question: "Why do some people think eating competitions are 'in bad taste'?",
+                options: ["They're boring", "They can be unhealthy and many people go hungry", "They're too expensive", "They're not real sports"],
+                correct: 1,
+                explanation: "The text says 'It can be unhealthy for the contestants, and many people in the world are going hungry.'"
+            },
+            {
+                question: "How do competitive eaters view themselves according to Kobayashi?",
+                options: ["As entertainers", "As athletes", "As comedians", "As teachers"],
+                correct: 1,
+                explanation: "As Kobayashi says, 'Food fighters... think of themselves as athletes.'"
+            },
+            {
+                question: "What types of food are mentioned in eating competitions?",
+                options: ["Only hot dogs", "Pizza, pies, ice cream, chili peppers", "Just vegetables", "Only desserts"],
+                correct: 1,
+                explanation: "The text mentions eating competitions can involve various foods - pizza, pies, ice cream, chili peppers."
+            },
+            {
+                question: "What is the main question about eating competitions in the final paragraph?",
+                options: ["Are they expensive?", "Are they in bad taste?", "Are they difficult?", "Are they popular?"],
+                correct: 1,
+                explanation: "The text asks 'So are eating competitions in bad taste?' - this is the main question about whether they are appropriate."
+            }
+        ];
+
+        const translationQuestions = [
+            {
+                question: "Translate to English:",
+                chinese: "她是比赛中最年轻的参赛者。",
+                type: "translation",
+                correctAnswers: ["She is the youngest contestant in the competition", "She is the youngest contestant in the contest", "She's the youngest contestant in the competition"],
+                explanation: "她 (she) + 是 (is) + 最年轻的 (youngest) + 参赛者 (contestant) + 在比赛中 (in the competition)"
+            },
+            {
+                question: "Translate to English:",
+                chinese: "我想赢得这个奖品。",
+                type: "translation",
+                correctAnswers: ["I want to win this prize", "I want to win the prize"],
+                explanation: "我 (I) + 想 (want to) + 赢得 (win) + 这个 (this) + 奖品 (prize)"
+            },
+            {
+                question: "Translate to English:",
+                chinese: "他吃的和我一样多。",
+                type: "translation",
+                correctAnswers: ["He eats as much as I do", "He eats as much as me"],
+                explanation: "他 (he) + 吃的 (eats) + 和我一样多 (as much as I do) - using the 'as...as' pattern"
+            },
+            {
+                question: "Translate to English:",
+                chinese: "比赛时间只有十分钟。",
+                type: "translation",
+                correctAnswers: ["The competition time is only ten minutes", "The contest time is only ten minutes", "The time limit is only ten minutes"],
+                explanation: "比赛时间 (competition time) + 只有 (is only) + 十分钟 (ten minutes)"
+            },
+            {
+                question: "Translate to English:",
+                chinese: "比赛者在时间限制内吃很多食物。",
+                type: "translation",
+                correctAnswers: ["Contestants eat a lot of food within the time limit", "The contestants eat much food within the time limit"],
+                explanation: "比赛者 (contestants) + 在时间限制内 (within the time limit) + 吃 (eat) + 很多食物 (a lot of food)"
+            },
+            {
+                question: "Translate to English:",
+                chinese: "比赛包含很多种类的食物。",
+                type: "translation",
+                correctAnswers: ["The competition includes many types of food", "The contest includes various types of food", "Competitions include various foods"],
+                explanation: "比赛 (competition) + 包含 (includes) + 很多种类的 (many types of) + 食物 (food)"
+            },
+            {
+                question: "Translate to English:",
+                chinese: "获胜者能得到很大的奖品。",
+                type: "translation",
+                correctAnswers: ["Winners can get large prizes", "The winners can receive large prizes", "Winners can obtain big prizes"],
+                explanation: "获胜者 (winners) + 能 (can) + 得到 (get/receive) + 很大的 (large) + 奖品 (prizes)"
+            },
+            {
+                question: "Translate to English:",
+                chinese: "他们争论谁更爱这个国家。",
+                type: "translation",
+                correctAnswers: ["They argued about who loved their country more", "They argue about who loves the country more"],
+                explanation: "他们 (they) + 争论 (argued) + 谁 (who) + 更爱 (loved more) + 这个国家 (the/their country)"
+            },
+            {
+                question: "Translate to English:",
+                chinese: "他赢了这个比赛。",
+                type: "translation",
+                correctAnswers: ["He won this competition", "He won the competition", "He won this contest"],
+                explanation: "他 (he) + 赢了 (won) + 这个比赛 (this competition)"
+            },
+            {
+                question: "Translate to English:",
+                chinese: "这是一个百年传统。",
+                type: "translation",
+                correctAnswers: ["This is a hundred-year tradition", "This is a century-old tradition", "This is a 100-year tradition"],
+                explanation: "这是 (this is) + 一个 (a) + 百年 (hundred-year/century-old) + 传统 (tradition)"
+            }
+        ];
+
+        const matchingQuestions = [
+            {
+                question: "Match the words with their correct meanings:",
+                type: "matching",
+                pairs: [
+                    { word: "contestant", meaning: "a person in a competition" },
+                    { word: "record", meaning: "the best number ever achieved" },
+                    { word: "prize", meaning: "something you win when successful" },
+                    { word: "time limit", meaning: "only a short time allowed" },
+                    { word: "various", meaning: "different kinds of things" }
+                ],
+                explanation: "These are key vocabulary words from the competitive eating text with their definitions."
+            },
+            {
+                question: "Match the words with their correct meanings:",
+                type: "matching",
+                pairs: [
+                    { word: "argue", meaning: "to have a discussion with disagreement" },
+                    { word: "legend", meaning: "a story that may not be completely true" },
+                    { word: "immigrant", meaning: "someone who moves to another country" },
+                    { word: "work out", meaning: "to find a solution" },
+                    { word: "tradition", meaning: "something people do every year" }
+                ],
+                explanation: "These vocabulary words relate to the legend of how the hot dog contest started."
+            },
+            {
+                question: "Match the people with their descriptions:",
+                type: "matching",
+                pairs: [
+                    { word: "Joey Chestnut", meaning: "current champion, holds world record for 74 hot dogs" },
+                    { word: "Takeru Kobayashi", meaning: "former champion from Japan, smaller and lighter" },
+                    { word: "James Mullen", meaning: "Irish immigrant who won the first contest" },
+                    { word: "Nathan's Contest", meaning: "famous hot dog eating competition" }
+                ],
+                explanation: "These are the key people and competition mentioned in the reading passage."
+            },
+            {
+                question: "Match the sentence parts (Subject-Verb-Object):",
+                type: "matching",
+                pairs: [
+                    { word: "Contestants", meaning: "eat as much as they can" },
+                    { word: "Eating competitions", meaning: "can offer large prizes" },
+                    { word: "Joey Chestnut", meaning: "holds the world record" },
+                    { word: "Takeru Kobayashi", meaning: "was the champion for many years" }
+                ],
+                explanation: "Practice matching subjects with their corresponding verb phrases and objects."
+            },
+            {
+                question: "Match the grammar patterns:",
+                type: "matching",
+                pairs: [
+                    { word: "Joey Chestnut is an American", meaning: "Subject + be + noun" },
+                    { word: "He is smaller than Chestnut", meaning: "Subject + be + adjective" },
+                    { word: "Contestants eat food", meaning: "Subject + verb + object" },
+                    { word: "They worked out a way", meaning: "Subject + phrasal verb + object" }
+                ],
+                explanation: "These show different sentence patterns: SVO and linking verb structures."
+            }
+        ];
+
+        function createPowerUp(text, x, y) {
+            const powerUp = document.createElement('div');
+            powerUp.className = 'power-up';
+            powerUp.textContent = text;
+            powerUp.style.left = x + 'px';
+            powerUp.style.top = y + 'px';
+            document.body.appendChild(powerUp);
+            
+            setTimeout(() => {
+                powerUp.remove();
+            }, 2000);
+        }
+
+        function startGame(mode) {
+            currentMode = mode;
+            currentQuestionIndex = 0;
+            score = 0;
+            timer = 45;
+            selectedMatches = [];
+            
+            // Set questions based on mode
+            switch(mode) {
+                case 'vocabulary':
+                    questions = [...vocabularyQuestions];
+                    break;
+                case 'grammar':
+                    questions = [...grammarQuestions];
+                    break;
+                case 'reading':
+                    questions = [...readingQuestions];
+                    break;
+                case 'translation':
+                    questions = [...translationQuestions];
+                    break;
+                case 'matching':
+                    questions = [...matchingQuestions];
+                    break;
+            }
+            
+            // Shuffle questions
+            questions = questions.sort(() => Math.random() - 0.5);
+            
+            showScreen('game-screen');
+            updateStats();
+            loadQuestion();
+            startTimer();
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                endGame();
+                return;
+            }
+            
+            const question = questions[currentQuestionIndex];
+            document.getElementById('question-text').textContent = question.question;
+            
+            // Clear previous content
+            document.getElementById('options-container').innerHTML = '';
+            document.getElementById('sentence-builder').style.display = 'none';
+            document.getElementById('translation-area').style.display = 'none';
+            document.getElementById('matching-area').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+            
+            // Hide check button initially
+            document.querySelector('.controls .btn').style.display = 'none';
+            
+            if (question.type === 'sentence-builder') {
+                setupSentenceBuilder(question);
+            } else if (question.type === 'translation') {
+                setupTranslation(question);
+            } else if (question.type === 'matching') {
+                setupMatching(question);
+            } else {
+                setupMultipleChoice(question);
+            }
+            
+            updateStats();
+        }
+
+        function setupMultipleChoice(question) {
+            const optionsContainer = document.getElementById('options-container');
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function setupSentenceBuilder(question) {
+            document.getElementById('sentence-builder').style.display = 'block';
+            document.querySelector('.controls .btn').style.display = 'inline-block';
+            const wordBank = document.getElementById('word-bank');
+            const sentenceArea = document.getElementById('sentence-area');
+            
+            wordBank.innerHTML = '';
+            sentenceArea.innerHTML = '<span style="color: #666; font-style: italic;">CLICK WORDS TO BUILD SENTENCE...</span>';
+            currentSentence = [];
+            
+            question.words.forEach(word => {
+                const wordCard = document.createElement('div');
+                wordCard.className = 'word-card';
+                wordCard.textContent = word;
+                wordCard.onclick = () => addWordToSentence(word, wordCard);
+                wordBank.appendChild(wordCard);
+            });
+        }
+
+        function setupTranslation(question) {
+            document.getElementById('translation-area').style.display = 'block';
+            document.querySelector('.controls .btn').style.display = 'inline-block';
+            document.getElementById('chinese-text').textContent = question.chinese;
+            document.getElementById('translation-input').value = '';
+            document.getElementById('translation-input').focus();
+        }
+
+        function setupMatching(question) {
+            document.getElementById('matching-area').style.display = 'block';
+            document.querySelector('.controls .btn').style.display = 'inline-block';
+            const leftColumn = document.getElementById('left-column');
+            const rightColumn = document.getElementById('right-column');
+            
+            // Clear previous content but keep headers
+            leftColumn.innerHTML = '<h3 style="text-align: center; margin-bottom: 15px; font-size: 0.4em;">WORDS</h3>';
+            rightColumn.innerHTML = '<h3 style="text-align: center; margin-bottom: 15px; font-size: 0.4em;">MEANINGS</h3>';
+            selectedMatches = [];
+            
+            // Shuffle the pairs
+            const shuffledPairs = [...question.pairs].sort(() => Math.random() - 0.5);
+            const shuffledMeanings = [...question.pairs].map(p => p.meaning).sort(() => Math.random() - 0.5);
+            
+            // Add words to left column
+            shuffledPairs.forEach((pair, index) => {
+                const wordItem = document.createElement('div');
+                wordItem.className = 'match-item';
+                wordItem.textContent = pair.word;
+                wordItem.dataset.word = pair.word;
+                wordItem.onclick = () => selectMatch(wordItem, 'word');
+                leftColumn.appendChild(wordItem);
+            });
+            
+            // Add meanings to right column
+            shuffledMeanings.forEach((meaning, index) => {
+                const meaningItem = document.createElement('div');
+                meaningItem.className = 'match-item';
+                meaningItem.textContent = meaning;
+                meaningItem.dataset.meaning = meaning;
+                meaningItem.onclick = () => selectMatch(meaningItem, 'meaning');
+                rightColumn.appendChild(meaningItem);
+            });
+        }
+
+        function selectMatch(element, type) {
+            if (element.classList.contains('matched')) return;
+            
+            // Remove previous selections of the same type
+            document.querySelectorAll('.match-item.selected').forEach(item => {
+                if ((type === 'word' && item.dataset.word) || (type === 'meaning' && item.dataset.meaning)) {
+                    item.classList.remove('selected');
+                }
+            });
+            
+            element.classList.add('selected');
+            
+            // Check if we have both word and meaning selected
+            const selectedWord = document.querySelector('.match-item.selected[data-word]');
+            const selectedMeaning = document.querySelector('.match-item.selected[data-meaning]');
+            
+            if (selectedWord && selectedMeaning) {
+                // Check if it's a correct match
+                const question = questions[currentQuestionIndex];
+                const isCorrect = question.pairs.some(pair => 
+                    pair.word === selectedWord.dataset.word && pair.meaning === selectedMeaning.dataset.meaning
+                );
+                
+                if (isCorrect) {
+                    selectedWord.classList.add('matched');
+                    selectedMeaning.classList.add('matched');
+                    selectedMatches.push({word: selectedWord.dataset.word, meaning: selectedMeaning.dataset.meaning});
+                    createPowerUp('💯', selectedWord.offsetLeft, selectedWord.offsetTop);
+                }
+                
+                selectedWord.classList.remove('selected');
+                selectedMeaning.classList.remove('selected');
+            }
+        }
+
+        function addWordToSentence(word, wordCard) {
+            if (wordCard.classList.contains('used')) return;
+            
+            wordCard.classList.add('used');
+            currentSentence.push(word);
+            
+            const sentenceArea = document.getElementById('sentence-area');
+            
+            // Clear placeholder text if it exists
+            if (currentSentence.length === 1) {
+                sentenceArea.innerHTML = '';
+            }
+            
+            const placedWord = document.createElement('span');
+            placedWord.className = 'placed-word';
+            placedWord.textContent = word;
+            placedWord.onclick = () => removeWordFromSentence(word, placedWord, wordCard);
+            sentenceArea.appendChild(placedWord);
+        }
+
+        function removeWordFromSentence(word, placedWord, wordCard) {
+            placedWord.remove();
+            wordCard.classList.remove('used');
+            const index = currentSentence.indexOf(word);
+            if (index > -1) {
+                currentSentence.splice(index, 1);
+            }
+            
+            // Add placeholder text back if sentence is empty
+            if (currentSentence.length === 0) {
+                const sentenceArea = document.getElementById('sentence-area');
+                sentenceArea.innerHTML = '<span style="color: #666; font-style: italic;">CLICK WORDS TO BUILD SENTENCE...</span>';
+            }
+        }
+
+        function checkAnswer() {
+            const question = questions[currentQuestionIndex];
+            let isCorrect = false;
+            
+            if (question.type === 'sentence-builder') {
+                isCorrect = JSON.stringify(currentSentence.slice(0, question.correctSentence.length)) === JSON.stringify(question.correctSentence);
+            } else if (question.type === 'translation') {
+                const userAnswer = document.getElementById('translation-input').value.trim().toLowerCase();
+                isCorrect = question.correctAnswers.some(answer => 
+                    answer.toLowerCase() === userAnswer || 
+                    answer.toLowerCase().replace(/[.,!?]/g, '') === userAnswer.replace(/[.,!?]/g, '')
+                );
+            } else if (question.type === 'matching') {
+                isCorrect = selectedMatches.length === question.pairs.length;
+            }
+            
+            if (isCorrect) {
+                score += 15;
+                createPowerUp('🎉+15', 400, 200);
+            }
+            
+            showFeedback(isCorrect, question.explanation);
+            updateStats();
+            
+            // Show next button
+            document.querySelector('.controls .btn:nth-child(2)').style.display = 'inline-block';
+        }
+
+        function selectAnswer(selectedIndex) {
+            const question = questions[currentQuestionIndex];
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            buttons.forEach((button, index) => {
+                button.disabled = true;
+                if (index === question.correct) {
+                    button.classList.add('correct');
+                } else if (index === selectedIndex) {
+                    button.classList.add('incorrect');
+                }
+            });
+            
+            const isCorrect = selectedIndex === question.correct;
+            if (isCorrect) {
+                score += 10;
+                createPowerUp('🔥+10', 400, 200);
+            }
+            
+            showFeedback(isCorrect, question.explanation);
+            updateStats();
+            
+            // Show next button
+            document.querySelector('.controls .btn:nth-child(2)').style.display = 'inline-block';
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            const feedback = document.getElementById('feedback');
+            feedback.style.display = 'block';
+            feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedback.innerHTML = `${isCorrect ? '🏆 EXCELLENT!' : '💪 TRY AGAIN!'} ${explanation}`;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            timer = 45; // Reset timer for next question
+            
+            // Hide next button
+            document.querySelector('.controls .btn:nth-child(2)').style.display = 'none';
+            
+            loadQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('question-num').textContent = Math.min(currentQuestionIndex + 1, questions.length);
+            document.getElementById('timer').textContent = timer;
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timer--;
+                updateStats();
+                
+                if (timer <= 0) {
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            const finalScore = document.getElementById('final-score');
+            const performanceMsg = document.getElementById('performance-msg');
+            
+            finalScore.textContent = `${score} POINTS!`;
+            
+            const maxScore = questions.length * (currentMode === 'translation' || currentMode === 'matching' ? 15 : 10);
+            const percentage = Math.round((score / maxScore) * 100);
+            
+            if (percentage >= 90) {
+                performanceMsg.textContent = "🏆 LEGENDARY! YOU'RE A SPEED EATING MASTER! JOEY CHESTNUT WOULD BE PROUD! 🌭";
+            } else if (percentage >= 80) {
+                performanceMsg.textContent = "🥇 CHAMPION LEVEL! EXCELLENT WORK ON COMPETITIVE EATING! 🍕";
+            } else if (percentage >= 70) {
+                performanceMsg.textContent = "🥈 GREAT JOB! YOU'RE BECOMING A REAL FOOD FIGHTER! 🍔";
+            } else if (percentage >= 60) {
+                performanceMsg.textContent = "🥉 GOOD EFFORT! KEEP PRACTICING YOUR ENGLISH! 🌶️";
+            } else if (percentage >= 50) {
+                performanceMsg.textContent = "👍 NICE TRY! REVIEW YOUR LESSONS AND COME BACK! 📚";
+            } else {
+                performanceMsg.textContent = "💪 DON'T GIVE UP! PRACTICE MAKES PERFECT! 🎯";
+            }
+            
+            showScreen('final-screen');
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.game-area').forEach(area => {
+                area.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function restartGame() {
+            clearInterval(timerInterval);
+            startGame(currentMode);
+        }
+
+        function showStartScreen() {
+            clearInterval(timerInterval);
+            showScreen('start-screen');
+        }
+    </script>
+</body>
+</html>
